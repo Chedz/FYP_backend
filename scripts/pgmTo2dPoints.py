@@ -1,3 +1,6 @@
+import os
+import sys
+
 def read_pgm(pgmf):
     """Return a raster of integers from a PGM as a list of lists."""
     global knownSpacePoints
@@ -26,23 +29,46 @@ def read_pgm(pgmf):
     # print(len(raster))
     return 
 
-def writePointsToFile():
-    with open('output/2d_Points.txt', 'w') as file:
+def writePointsToFile(outputfileName):
+    with open('processedData/2d_' + outputfileName, 'w') as file:
         for point in knownSpacePoints:
             file.write(str(point[0]) + ' ' + str(point[1]*0.050) + ' ' + str(point[2]*0.050) + '\n') #0.05 from comment in file header
 
 # writePointsToFile()
 
-def main():
+def checkFileExists(fileNamePath):
+    if os.path.exists(fileNamePath):
+        print("File exists in " + fileNamePath)
+        return True
+    else:
+        print("File does not exist in " + fileNamePath)
+        return False
+
+def main(fileName):
     # print('called main()')
-    read_pgm(open('inputData/limMap2.pgm', 'rb'))
-    writePointsToFile()
-    # print('done')
-    # for i in range(5000):
-    #     print("pgmTo2dPoint: " + str(i))
+
+    # check if file exists in inputData folder
+    if(checkFileExists("inputData/" + fileName)):
+        # sensorFusionToPoints(sys.argv[1]) # call function with filename if file exists
+        read_pgm(open('inputData/' + fileName, 'rb'))
+        writePointsToFile(fileName)
+
+    else:
+        print("File does not exist in inputData folder, exiting...")
+        sys.exit(1)
+
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) != 2:
+        print("Usage: python3 pgmTo2dPoints.py <filename.pgm>")
+        sys.exit(1)
+
+    main(sys.argv[1])
+
+    # # check if file exists in inputData folder
+    # if(checkFileExists("inputData/" +sys.argv[1])):
+    #     # sensorFusionToPoints(sys.argv[1]) # call function with filename if file exists
+    #     main(sys.argv[1])
 
 
 # f = open('mapTest.pgm', 'rb')

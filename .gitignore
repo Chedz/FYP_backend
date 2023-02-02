@@ -1,0 +1,6 @@
+# dependencies
+/node_modules
+# raw data
+/inputData
+/output
+/processedData

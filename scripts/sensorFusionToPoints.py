@@ -8,14 +8,14 @@ from datetime import datetime
 def sensorFusionToPoints(fileName):
     print('called sensorFusionToPoints()')
 
-    # check that file does not exist in output folder
-    if(checkFileExists("output/1d_" + fileName)):
-        print("File already exists in output folder")
+    # check that file does not exist in processedData folder
+    if(checkFileExists("processedData/1d_" + fileName)):
+        print("File already exists in processedData folder")
         return
     else:
-        print("File does not exist in output folder")
-        # create empty file in output folder
-        open("output/1d_" + fileName, 'w').close() 
+        print("File does not exist in processedData folder")
+        # create empty file in processedData folder
+        open("processedData/1d_" + fileName, 'w').close() 
 
     with open("inputData/" + fileName) as file_in:
         lines = []
@@ -28,23 +28,11 @@ def sensorFusionToPoints(fileName):
             points.append([float(pointsStr[0]), float(pointsStr[1]), float(pointsStr[2]) - (float(pointsStr[3]) * 0.01) ])
             points.append([float(pointsStr[0]), float(pointsStr[1]), float(pointsStr[2]) + (float(pointsStr[4]) * 0.01) ])
 
-            with open("output/1d_" + fileName, "a") as file_out:
+            with open("processedData/1d_" + fileName, "a") as file_out:
                 #verticeString = 
                 file_out.write(pointsStr[0] + " , " +  str(float(pointsStr[2]) - (float(pointsStr[3]) * 0.01) ) + " , " + pointsStr[1] + "\n" )
                 file_out.write(pointsStr[0] + " , " +  str(float(pointsStr[2]) + (float(pointsStr[4]) * 0.01) ) + " , " + pointsStr[1] + "\n" )
                 
-
-def testCall():
-    print('called testCall()')
-    for i in range(5000):
-        print("sensorFusionToPoints: " + str(i))
-
-def main():
-    # testCall()
-    print('called main()')
-    sensorFusionToPoints()
-    print('done')
-
 
 def checkFileExists(fileNamePath):
     if os.path.exists(fileNamePath):
@@ -53,14 +41,20 @@ def checkFileExists(fileNamePath):
     else:
         print("File does not exist in " + fileNamePath)
         return False
-
-if __name__ == '__main__':
-    # main()
-    # check if argument is passed
-    if len(sys.argv) != 2:
-        print("Usage: python sensorFusionToPoints.py <filename>")
+    
+def main(fileName):
+    # check if file exists in inputData folder
+    if(checkFileExists("inputData/" +fileName)):
+        sensorFusionToPoints(fileName) # call function with filename if file exists
+    
+    else:
+        print("File does not exist in inputData folder, exiting...")
         sys.exit(1)
 
-    # check if file exists in inputData folder
-    if(checkFileExists("inputData/" +sys.argv[1])):
-        sensorFusionToPoints(sys.argv[1]) # call function with filename if file exists
+if __name__ == '__main__':
+    # check if argument is passed
+    if len(sys.argv) != 2:
+        print("Usage: python3 sensorFusionToPoints.py <filename>")
+        sys.exit(1)
+
+    main(sys.argv[1])
