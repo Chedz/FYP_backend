@@ -46,6 +46,7 @@ def main(fileName):
     # check if file exists in inputData folder
     if(checkFileExists("inputData/" +fileName)):
         sensorFusionToPoints(fileName) # call function with filename if file exists
+        print("Succesfully processed " + fileName + " and wrote to 1d_" + fileName + " in processedData folder.")
     
     else:
         print("File does not exist in inputData folder, exiting...")

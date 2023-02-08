@@ -52,6 +52,7 @@ def main(fileName):
         # sensorFusionToPoints(sys.argv[1]) # call function with filename if file exists
         read_pgm(open('inputData/' + fileName, 'rb'))
         writePointsToFile(fileName)
+        print("Succesfully processed " + fileName + " and wrote to 2d_" + fileName + " in processedData folder.")
 
     else:
         print("File does not exist in inputData folder, exiting...")
