@@ -65,6 +65,8 @@ app.post('/upload',  function (req, res) {
     // spawn new child process to call the python script
     initPostProcess(textReceivedObj.name.slice(0, -4));
 
+    setMostRecent(textReceivedObj.name.slice(0, -4)); // saves the most recent file name to text file for later use
+
     res.sendStatus(201);
  });
 // app.post('/upload', fileUpload, (req, res) => {
@@ -247,6 +249,54 @@ app.get('/output/1d', (req, res) => {
 
 });
 
+app.get('/recentName', (req, res) => {  // get the most recent file name
+
+    // var options = {
+    //     root: path.join(__dirname + '/output/'),
+    // };
+
+    res.send( getMostRecent());
+    res.sendStatus(201);
+});
+
+app.get('/1d/mostRecent', (req, res) => {  // get the most recent file name
+
+    var options = {
+        root: path.join(__dirname + '/processedData/'),
+    };
+
+    var fileName = '1d_' + getMostRecent() +'.txt';
+    res.sendFile(fileName, options, (err) => {
+        if (err) {
+            console.log(err);
+            res.status(err.status).end();
+        }
+        else {
+            console.log('Sent:', fileName);
+        }
+    });
+});
+
+app.get('/2d/mostRecent', (req, res) => {  // get the most recent file name
+
+    var options = {
+        root: path.join(__dirname + '/processedData/'),
+    };
+
+    var fileName = '2d_' + getMostRecent() +'.txt';
+    res.sendFile(fileName, options, (err) => {
+        if (err) {
+            console.log(err);
+            res.status(err.status).end();
+        }
+        else {
+            console.log('Sent:', fileName);
+        }
+    });
+});
+
+
+
 
 function initPostProcess(fileName) {
     // spawn new child process to call the python script
@@ -262,4 +312,38 @@ function initPostProcess(fileName) {
         // send data to browser
         //res.send(dataToSend)
     });
+}
+
+// function queryMostRecentData(){
+//     var files = fs.readdirSync('./processedData/');
+//     console.log(files);
+//     for (var i = 0; i < files.length; i++) {
+//         // console.log(files[i]);
+//         files[i] = files[i].slice(3); // remove the "2d_" or "1d_" prefix
+//     }
+//     console.log(files);
+
+//     var string = files[0].slice(0,10);
+//     console.log(string);
+//     var date = new Date(string);
+//     console.log(date);
+// }
+
+function getMostRecent(){
+    try {  
+        var data = fs.readFileSync('recentName.txt', 'utf8');
+        console.log(data.toString());    
+        return data.toString();
+    } catch(e) {
+        console.log('Error:', e.stack);
+    }
+}
+
+function setMostRecent(fileName){
+    try {  
+        fs.writeFileSync('recentName.txt', fileName, 'utf8');
+        console.log("updated recentName.txt");
+    } catch(e) {
+        console.log('Error:', e.stack);
+    }
 }
