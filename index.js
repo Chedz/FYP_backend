@@ -10,11 +10,9 @@ const path = require('path');
 const PORT = 6968;
 const cors = require('cors');
 var router = express.Router();
-const {spawn} = require('child_process'); // for python
-
+const {spawn} = require('child_process'); // for python script
 const fs = require('fs');
-// const multer = require('multer');
-// const upload = multer({dest:'uploads/'}); //.single("demo_image");
+
 
 app.use(cors());
 app.use(express.text());
@@ -32,20 +30,11 @@ app.listen(PORT, function(err) {
         console.log(`Server is running on port ${PORT}`);
     }
 });
+
 app.post('/upload',  function (req, res) {
-    // req.file is the name of your file in the form above, here 'uploaded_file'
-    // req.body will hold the text fields, if there were any 
 
-    // console.log(req.files);
-    // var received = req.files.nameHolder; // the uploaded file object
-    // console.log(received);
-    var textReceivedObj = req.files.text;
-    var imageReceivedObj = req.files.image;
-
-
-    // var buffer = received.data;     // the uploaded file data
-    // var fileName = received.name;   // the uploaded file name
-    // console.log(buffer.toString('utf8'));
+    var textReceivedObj = req.files.text;   //text file containing external data collected from sensors
+    var imageReceivedObj = req.files.image; //image file outputted from slam algorithm mapping process
 
 
     fs.writeFile("./inputData/" + textReceivedObj.name, textReceivedObj.data, function(err) {
@@ -69,6 +58,9 @@ app.post('/upload',  function (req, res) {
 
     res.sendStatus(201);
  });
+
+
+
 // app.post('/upload', fileUpload, (req, res) => {
 //   //Now you can use req.files.file to access the file input with name="file"
 //   var object = {data: req.files.file.data, contentType: req.files.file.mimetype};
