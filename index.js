@@ -35,6 +35,7 @@ app.post('/upload',  function (req, res) {
 
     var textReceivedObj = req.files.text;   //text file containing external data collected from sensors
     var imageReceivedObj = req.files.image; //image file outputted from slam algorithm mapping process
+    var yamlReceivedObj = req.files.yaml;   //yaml file containing parameters for slam algorithm
 
 
     fs.writeFile("./inputData/" + textReceivedObj.name, textReceivedObj.data, function(err) {
@@ -49,6 +50,13 @@ app.post('/upload',  function (req, res) {
             return console.log(err);
         }
         console.log("The image file was saved!");
+    }); 
+
+    fs.writeFile("./inputData/" + yamlReceivedObj.name, yamlReceivedObj.data, function(err) {
+        if(err) {
+            return console.log(err);
+        }
+        console.log("The yaml file was saved!");
     }); 
 
     // spawn new child process to call the python script
@@ -251,13 +259,31 @@ app.get('/recentName', (req, res) => {  // get the most recent file name
     res.sendStatus(201);
 });
 
-app.get('/1d/mostRecent', (req, res) => {  // get the most recent file name
+app.get('/1d_0/mostRecent', (req, res) => {  // get the most recent file name
 
     var options = {
         root: path.join(__dirname + '/processedData/'),
     };
 
-    var fileName = '1d_' + getMostRecent() +'.txt';
+    var fileName = '1d_0_' + getMostRecent() +'.txt';
+    res.sendFile(fileName, options, (err) => {
+        if (err) {
+            console.log(err);
+            res.status(err.status).end();
+        }
+        else {
+            console.log('Sent:', fileName);
+        }
+    });
+});
+
+app.get('/1d_1/mostRecent', (req, res) => {  // get the most recent file name
+
+    var options = {
+        root: path.join(__dirname + '/processedData/'),
+    };
+
+    var fileName = '1d_1_' + getMostRecent() +'.txt';
     res.sendFile(fileName, options, (err) => {
         if (err) {
             console.log(err);
@@ -276,6 +302,24 @@ app.get('/2d/mostRecent', (req, res) => {  // get the most recent file name
     };
 
     var fileName = '2d_' + getMostRecent() +'.txt';
+    res.sendFile(fileName, options, (err) => {
+        if (err) {
+            console.log(err);
+            res.status(err.status).end();
+        }
+        else {
+            console.log('Sent:', fileName);
+        }
+    });
+});
+
+app.get('/yaml/mostRecent', (req, res) => {  // get the most recent file name
+
+    var options = {
+        root: path.join(__dirname + '/inputData/'),
+    };
+
+    var fileName = getMostRecent() +'.yaml';
     res.sendFile(fileName, options, (err) => {
         if (err) {
             console.log(err);

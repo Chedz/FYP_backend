@@ -28,9 +28,10 @@ def sensorFusionToPoints(fileName):
             points.append([float(pointsStr[0]), float(pointsStr[1]), float(pointsStr[2]) - (float(pointsStr[3]) * 0.01) ])
             points.append([float(pointsStr[0]), float(pointsStr[1]), float(pointsStr[2]) + (float(pointsStr[4]) * 0.01) ])
 
-            with open("processedData/1d_" + fileName, "a") as file_out:
+            with open("processedData/1d_0_" + fileName, "a") as file_out:
                 #verticeString = 
                 file_out.write(pointsStr[0] + " , " +  str(float(pointsStr[2]) - (float(pointsStr[3]) * 0.01) ) + " , " + pointsStr[1] + "\n" )
+            with open("processedData/1d_1_" + fileName, "a") as file_out:
                 file_out.write(pointsStr[0] + " , " +  str(float(pointsStr[2]) + (float(pointsStr[4]) * 0.01) ) + " , " + pointsStr[1] + "\n" )
                 
 
