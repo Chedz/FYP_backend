@@ -18,11 +18,14 @@ app.use(cors());
 app.use(express.text());
 
 const fileUpload = require('express-fileupload');
+var validProcessedList = [];
+
 app.use(fileUpload({
     createParentPath: true
 }));
 
 app.listen(PORT, function(err) {
+    getFiles();
     if (err) {
         console.log(err);
     }
@@ -331,6 +334,103 @@ app.get('/yaml/mostRecent', (req, res) => {  // get the most recent file name
     });
 });
 
+app.get('/validProcessedList', (req, res) => {  // get the most recent file name
+    res.send(validProcessedList);
+});
+
+// app.get('/2d/specfic', (req, res) => {  // get specific processed 2d file
+//     console.log(req.query);
+
+//     var options = {
+//         root: path.join(__dirname + '/processedData/'),
+//     };
+
+//     res.sendFile("2d_" + req.query.fileName + '.txt', options, (err) => {
+//         if (err) {
+//             console.log(err);
+//             res.status(err.status).end();
+//         }
+//         else {
+//             console.log('Sent:', req.query.fileName);
+//         }
+//     });
+// });
+
+app.get('/2d/specific', (req, res) => {  // get specific processed 2d file
+    console.log(req.query);
+
+    var options = {
+        root: path.join(__dirname + '/processedData/'),
+    };
+
+    res.sendFile("2d_" + req.query.fileName + '.txt', options, (err) => {
+        if (err) {
+            console.log(err);
+            res.status(err.status).end();
+        }
+        else {
+            console.log('Sent:', req.query.fileName);
+        }
+    });
+});
+    // 1d_0/specific
+    // 1d_1/specific
+    // yaml/specific
+
+app.get('/1d_0/specific', (req, res) => {  // get specific processed 2d file
+    console.log(req.query);
+
+    var options = {
+        root: path.join(__dirname + '/processedData/'),
+    };
+
+    res.sendFile("1d_0_" + req.query.fileName + '.txt', options, (err) => {
+        if (err) {
+            console.log(err);
+            res.status(err.status).end();
+        }
+        else {
+            console.log('Sent:', req.query.fileName);
+        }
+    });
+});
+
+app.get('/1d_1/specific', (req, res) => {  // get specific processed 2d file
+    console.log(req.query);
+
+    var options = {
+        root: path.join(__dirname + '/processedData/'),
+    };
+
+    res.sendFile("1d_1_" + req.query.fileName + '.txt', options, (err) => {
+        if (err) {
+            console.log(err);
+            res.status(err.status).end();
+        }
+        else {
+            console.log('Sent:', req.query.fileName);
+        }
+    });
+});
+
+app.get('/yaml/specific', (req, res) => {  // get specific processed 2d file
+    console.log(req.query);
+
+    var options = {
+        root: path.join(__dirname + '/inputData/'),
+    };
+
+    res.sendFile(req.query.fileName + '.yaml', options, (err) => {
+        if (err) {
+            console.log(err);
+            res.status(err.status).end();
+        }
+        else {
+            console.log('Sent:', req.query.fileName);
+        }
+    });
+});
+
 
 
 
@@ -383,3 +483,121 @@ function setMostRecent(fileName){
         console.log('Error:', e.stack);
     }
 }
+
+function getFiles(){
+    // var files = fs.readdirSync('./inputData/');
+    var processedDirName = './processedData/';
+    var inputDirName = './inputData';
+
+    var processedFileObjs = fs.readdirSync(processedDirName);
+    var inputFileObjs = fs.readdirSync(inputDirName);
+
+    // console.log(files);
+    // return files;
+    console.log(processedFileObjs.length);
+    console.log(inputFileObjs.length);
+
+    //create 3 arrays
+    var list1d0 = [];
+    var list1d1 = [];
+    var list2d = [];
+    let listYaml = [];
+    var count1dDep = 0;
+
+    processedFileObjs.forEach(file => {
+        let slice = file.slice(0,4);
+        // console.log(slice);
+
+        switch (slice) {
+            case '1d_0':
+                list1d0.push(file);
+                break;
+            case '1d_1':
+                list1d1.push(file);
+                break;
+            case '2d_2':
+                list2d.push(file);
+                break;
+            default:
+                // 1d_2 do nothing (deprecated)
+                count1dDep++;
+                break;
+        }
+        
+      });
+
+
+      //check for valid yaml files in inputData since not processed
+      
+      inputFileObjs.forEach(file => {
+        let fileType = file.slice( file.length-4 ,file.length);
+
+        if(fileType !== 'yaml') return;
+
+        let slice = file.slice(0, file.length - 5);
+
+        listYaml.push(slice); //41
+      });
+
+
+
+
+    //   console.log(list1d0.length);
+    //   console.log(list1d1.length);
+    //   console.log(list2d.length);
+    //   console.log(count1dDep);
+
+
+
+    //check valid 1d_0, 1d_1 and yaml file for each 2d_ file
+    var valid1d_0 = false;
+    var valid1d_1 = false;
+    var validYaml = false;
+
+    list2d.forEach(element2d => {
+        fileName2d = element2d.slice(3, element2d.length - 4);
+
+        //console.log(fileName);
+        // console.log()
+  
+        list1d0.forEach(element1d0 => {
+            fileName1d0 = element1d0.slice(5, element1d0.length - 4);
+            if(fileName1d0 == fileName2d) valid1d_0 = true;
+        });
+
+        list1d1.forEach(element1d1 => {
+            fileName1d1 = element1d1.slice(5, element1d1.length - 4);
+            if(fileName1d1 == fileName2d) valid1d_1 = true;
+        });
+
+        listYaml.forEach(elementYaml => {
+            if(elementYaml == fileName2d) validYaml = true;
+        });
+
+        if(!valid1d_0){
+            console.error('no valid 1d_0 file found in processed data');
+            return;
+        }
+    
+        if(!valid1d_1){
+            console.error('no valid 1d_1 file found in processed data');
+            return;
+        }
+    
+        if(!validYaml){
+            console.error('no valid yaml file found in processed data');
+            return;
+        }
+
+        validProcessedList.push(fileName2d);
+        
+    });
+
+    console.log('validProcessedList: ' + validProcessedList.length);
+
+
+
+
+    // console.log(processedFileObjs[0]);
+
+ }
