@@ -1,9 +1,4 @@
-// const fs = require('fs');
-// const axios = require('axios');
-// const FormData = require('form-data');
-// var os = require('os');
-
-
+//import libraries and initialise global variables
 const express = require('express');
 const app = express();
 const path = require('path');
@@ -13,8 +8,10 @@ var router = express.Router();
 const {spawn} = require('child_process'); // for python script
 const fs = require('fs');
 
-
-app.use(cors());
+/**
+ * Server initialisation
+ */
+app.use(cors());    // enable Cross-Origin-Resource-Sharing
 app.use(express.text());
 
 const fileUpload = require('express-fileupload');
@@ -24,8 +21,8 @@ app.use(fileUpload({
     createParentPath: true
 }));
 
-app.listen(PORT, function(err) {
-    getFiles();
+app.listen(PORT, function(err) {    //listen on port 6968
+    getFiles(); // gets list of valid processed maps and saves to validProcessedList[]
     if (err) {
         console.log(err);
     }
@@ -34,11 +31,11 @@ app.listen(PORT, function(err) {
     }
 });
 
-app.post('/upload',  function (req, res) {
+app.post('/upload',  function (req, res) {  //  POST method for uploading captured data from Raspberry pi via ROS.
 
     var textReceivedObj = req.files.text;   //text file containing external data collected from sensors
     var imageReceivedObj = req.files.image; //image file outputted from slam algorithm mapping process
-    var yamlReceivedObj = req.files.yaml;   //yaml file containing parameters for slam algorithm
+    var yamlReceivedObj = req.files.yaml;   //yaml file containing config parameters for slam algorithm and 2d map
 
 
     fs.writeFile("./inputData/" + textReceivedObj.name, textReceivedObj.data, function(err) {
@@ -71,198 +68,17 @@ app.post('/upload',  function (req, res) {
  });
 
 
-
-// app.post('/upload', fileUpload, (req, res) => {
-//   //Now you can use req.files.file to access the file input with name="file"
-//   var object = {data: req.files.file.data, contentType: req.files.file.mimetype};
-//   console.log(object);
-//   //Now perform user.save
-//   res.sendStatus(201);
-// })
-
-
-// app.post('/upload', function(req, res) {
-//     var received = req.files.nameHolder; // the uploaded file object
-//     console.log(received);
-//     var buffer = received.data;
-//     console.log(buffer.toString('utf8'));
-
-//     // spawn new child process to call the python script
-//     const python = spawn('python', ['scripts/print.py']);
-//     // collect data from script
-//     python.stdout.on('data', function (data) {
-//         console.log('Pipe data from python script ...');
-//         dataToSend = data.toString();
-//         console.log(dataToSend);
-//     });
-//     python.on('close', (code) => {
-//         console.log(`child process close all stdio with code ${code}`);
-//         // send data to browser
-//         //res.send(dataToSend)
-//     });
-
-//     res.sendStatus(201);
-//   });
-
-
-
-// const multer  = require('multer');
-// const upload = multer({ dest: os.tmpdir() });
-
-// router.post('/upload', upload.single('file'), function(req, res) {
-//     const title = req.body.title;
-//     const file = req.file;
-  
-//     console.log(title);
-//     console.log(file);
-  
-//     res.sendStatus(200);
-//   });
-  
-// module.exports = router;
-
-// app.post('/upload', upload.single('file'), function(req, res) {
-//     const title = req.body.title;
-//     const file = req.file;
-  
-//     console.log(title);
-//     console.log(file);
-  
-//     res.sendStatus(200);
-//   });
-
-  
-app.post('/post', (req, res) => {
-    //const { email, firstName } = req.body
-    // console.log(req);
-    // console.log(req.head);
-
-    //console.log(req.body);
-    var received = req.body;
-    console.log(received.data);
-    // const user = new User({ email, firstName })
-    // const ret = await user.save()
-    // res.json(ret)
-    res.sendStatus(201);
-});
-
-app.post('/loadfile', (req, res) => {
-
-    console.log("react to post action - loadFile");
-    res.send("submit ok");
-    // Notice the addition of the "fileName" key
-    // It is the HTML name attribute value here in the input element:
-    // <td><input type="file" name="fileName"></td>
-    var logFile = req.files.fileName;
-  
-    console.log(logFile);
-    var buffer = logFile.data;
-    console.log(buffer.toString('utf8'));
-  
-  });
-
-
-app.get('/2d', (req, res) => {
-    // res.status(200).send('Hello World');
-
-    // var text = 'Hello World';
-    // res.attachment('textFiles/knownSpacePoints.txt');
-    // res.type('txt');
-    // res.status(200).send(text);
-
-    var options = {
-        root: path.join(__dirname + '/textFiles/'),
-    };
-
-    var fileName = 'knownSpacePoints.txt';
-    res.sendFile(fileName, options, (err) => {
-        if (err) {
-            console.log(err);
-            res.status(err.status).end();
-        }
-        else {
-            console.log('Sent:', fileName);
-        }
-    });
-
-});
-
-// app.get('/vert', (req, res) => {
-
-//     var options = {
-//         root: path.join(__dirname + '/textFiles/'),
-//     };
-
-//     var fileName = 'vertPoints_2.txt';
-//     res.sendFile(fileName, options, (err) => {
-//         if (err) {
-//             console.log(err);
-//             res.status(err.status).end();
-//         }
-//         else {
-//             console.log('Sent:', fileName);
-//         }
-//     });
-
-// });
-
-
-app.get('/output/2d', (req, res) => {
-    // res.status(200).send('Hello World');
-
-    // var text = 'Hello World';
-    // res.attachment('textFiles/knownSpacePoints.txt');
-    // res.type('txt');
-    // res.status(200).send(text);
-
-    var options = {
-        // root: path.join(__dirname + '/textFiles/'),
-        root: path.join(__dirname + '/output/'),
-    };
-
-    var fileName = '2d_Points.txt';
-    res.sendFile(fileName, options, (err) => {
-        if (err) {
-            console.log(err);
-            res.status(err.status).end();
-        }
-        else {
-            console.log('Sent:', fileName);
-        }
-    });
-
-});
-
-app.get('/output/1d', (req, res) => {
-
-    var options = {
-        root: path.join(__dirname + '/output/'),
-    };
-
-    var fileName = '1d_Points.txt';
-    res.sendFile(fileName, options, (err) => {
-        if (err) {
-            console.log(err);
-            res.status(err.status).end();
-        }
-        else {
-            console.log('Sent:', fileName);
-        }
-    });
-
-});
-
 app.get('/recentName', (req, res) => {  // get the most recent file name
-
-    // var options = {
-    //     root: path.join(__dirname + '/output/'),
-    // };
 
     res.send( getMostRecent());
     res.sendStatus(201);
 });
 
-app.get('/1d_0/mostRecent', (req, res) => {  // get the most recent file name
+/**
+ * Following function returns most recent specific file by specifying file type.
+ */
+
+app.get('/1d_0/mostRecent', (req, res) => { // get the most recent top 1d lidar vertices
 
     var options = {
         root: path.join(__dirname + '/processedData/'),
@@ -280,7 +96,7 @@ app.get('/1d_0/mostRecent', (req, res) => {  // get the most recent file name
     });
 });
 
-app.get('/1d_1/mostRecent', (req, res) => {  // get the most recent file name
+app.get('/1d_1/mostRecent', (req, res) => {  // get the most recent bottom 1d lidar vertices
 
     var options = {
         root: path.join(__dirname + '/processedData/'),
@@ -298,7 +114,7 @@ app.get('/1d_1/mostRecent', (req, res) => {  // get the most recent file name
     });
 });
 
-app.get('/2d/mostRecent', (req, res) => {  // get the most recent file name
+app.get('/2d/mostRecent', (req, res) => {  // get the most recent processed 2d lidar vertices
 
     var options = {
         root: path.join(__dirname + '/processedData/'),
@@ -316,7 +132,7 @@ app.get('/2d/mostRecent', (req, res) => {  // get the most recent file name
     });
 });
 
-app.get('/yaml/mostRecent', (req, res) => {  // get the most recent file name
+app.get('/yaml/mostRecent', (req, res) => {  // get the most recent yaml file, contains config info for 2d map vertices
 
     var options = {
         root: path.join(__dirname + '/inputData/'),
@@ -334,28 +150,16 @@ app.get('/yaml/mostRecent', (req, res) => {  // get the most recent file name
     });
 });
 
+/**
+ * Returns list of all valid processed maps
+ */
 app.get('/validProcessedList', (req, res) => {  // get the most recent file name
     res.send(validProcessedList);
 });
 
-// app.get('/2d/specfic', (req, res) => {  // get specific processed 2d file
-//     console.log(req.query);
-
-//     var options = {
-//         root: path.join(__dirname + '/processedData/'),
-//     };
-
-//     res.sendFile("2d_" + req.query.fileName + '.txt', options, (err) => {
-//         if (err) {
-//             console.log(err);
-//             res.status(err.status).end();
-//         }
-//         else {
-//             console.log('Sent:', req.query.fileName);
-//         }
-//     });
-// });
-
+/**
+ * Following function returns specific file by specififying name as a parameter.
+ */
 app.get('/2d/specific', (req, res) => {  // get specific processed 2d file
     console.log(req.query);
 
@@ -373,11 +177,8 @@ app.get('/2d/specific', (req, res) => {  // get specific processed 2d file
         }
     });
 });
-    // 1d_0/specific
-    // 1d_1/specific
-    // yaml/specific
 
-app.get('/1d_0/specific', (req, res) => {  // get specific processed 2d file
+app.get('/1d_0/specific', (req, res) => {  // get specific top 1d lidar vertices
     console.log(req.query);
 
     var options = {
@@ -395,7 +196,7 @@ app.get('/1d_0/specific', (req, res) => {  // get specific processed 2d file
     });
 });
 
-app.get('/1d_1/specific', (req, res) => {  // get specific processed 2d file
+app.get('/1d_1/specific', (req, res) => {  // get specific bottom 1d lidar vertices
     console.log(req.query);
 
     var options = {
@@ -413,7 +214,7 @@ app.get('/1d_1/specific', (req, res) => {  // get specific processed 2d file
     });
 });
 
-app.get('/yaml/specific', (req, res) => {  // get specific processed 2d file
+app.get('/yaml/specific', (req, res) => {  // get specific yaml file, contains config info for 2d map vertices
     console.log(req.query);
 
     var options = {
@@ -432,9 +233,11 @@ app.get('/yaml/specific', (req, res) => {  // get specific processed 2d file
 });
 
 
+/**
+ * Post Processing functions:
+ */
 
-
-function initPostProcess(fileName) {
+function initPostProcess(fileName) {    // spawns python script as child process to carry out post-processing
     // spawn new child process to call the python script
     const python = spawn('python3', ['scripts/main.py', fileName]);
     // collect data from script
@@ -445,27 +248,10 @@ function initPostProcess(fileName) {
     });
     python.on('close', (code) => {
         console.log(`child process close all stdio with code ${code}`);
-        // send data to browser
-        //res.send(dataToSend)
     });
 }
 
-// function queryMostRecentData(){
-//     var files = fs.readdirSync('./processedData/');
-//     console.log(files);
-//     for (var i = 0; i < files.length; i++) {
-//         // console.log(files[i]);
-//         files[i] = files[i].slice(3); // remove the "2d_" or "1d_" prefix
-//     }
-//     console.log(files);
-
-//     var string = files[0].slice(0,10);
-//     console.log(string);
-//     var date = new Date(string);
-//     console.log(date);
-// }
-
-function getMostRecent(){
+function getMostRecent(){ //gets most recently processed file from recentName.txt (quick hacky solution)
     try {  
         var data = fs.readFileSync('recentName.txt', 'utf8');
         console.log(data.toString());    
@@ -475,7 +261,7 @@ function getMostRecent(){
     }
 }
 
-function setMostRecent(fileName){
+function setMostRecent(fileName){ //sets most recently processed file in recentName.txt (quick hacky solution to avoid having to check most recent in dir each time server is restarted)
     try {  
         fs.writeFileSync('recentName.txt', fileName, 'utf8');
         console.log("updated recentName.txt");
@@ -484,8 +270,8 @@ function setMostRecent(fileName){
     }
 }
 
-function getFiles(){
-    // var files = fs.readdirSync('./inputData/');
+function getFiles(){ // gets list of valid processed maps that is returned in the GET method ('/validProcessedList')
+
     var processedDirName = './processedData/';
     var inputDirName = './inputData';
 
@@ -506,7 +292,6 @@ function getFiles(){
 
     processedFileObjs.forEach(file => {
         let slice = file.slice(0,4);
-        // console.log(slice);
 
         switch (slice) {
             case '1d_0':
@@ -539,16 +324,6 @@ function getFiles(){
         listYaml.push(slice); //41
       });
 
-
-
-
-    //   console.log(list1d0.length);
-    //   console.log(list1d1.length);
-    //   console.log(list2d.length);
-    //   console.log(count1dDep);
-
-
-
     //check valid 1d_0, 1d_1 and yaml file for each 2d_ file
     var valid1d_0 = false;
     var valid1d_1 = false;
@@ -557,9 +332,6 @@ function getFiles(){
     list2d.forEach(element2d => {
         fileName2d = element2d.slice(3, element2d.length - 4);
 
-        //console.log(fileName);
-        // console.log()
-  
         list1d0.forEach(element1d0 => {
             fileName1d0 = element1d0.slice(5, element1d0.length - 4);
             if(fileName1d0 == fileName2d) valid1d_0 = true;
@@ -585,7 +357,7 @@ function getFiles(){
         }
     
         if(!validYaml){
-            console.error('no valid yaml file found in processed data');
+            console.error('no valid yaml file found in input data');
             return;
         }
 
@@ -594,10 +366,5 @@ function getFiles(){
     });
 
     console.log('validProcessedList: ' + validProcessedList.length);
-
-
-
-
-    // console.log(processedFileObjs[0]);
 
  }
